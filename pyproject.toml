@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "task-tracker"
+version = "0.1.0"
+description = ""
+authors = ["Tatyana Kuleva <tatianaarsentievna@gmail.com"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.13"
+django = "^5.2"
+djangorestframework-simplejwt = "^5.5.1"
+psycopg2-binary = "^2.9.11"
+python-dotenv = "^1.2.1"
+ipython = "^9.10.0"
+djangorestframework = "^3.16.1"
+django-filter = "^25.2"
+pillow = "^12.1.0"
+coverage = "^7.13.3"
+celery = "^5.6.2"
+django-celery-beat = "^2.8.1"
+redis = "^7.1.0"
+requests = "^2.32.5"
+django-cors-headers = "^4.9.0"
+black = "^26.1.0"
+flake8 = "^7.3.0"
+isort = "^7.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
