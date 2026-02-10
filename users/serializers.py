@@ -18,7 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
             "city",
             "tg_chat_id",
             "position",
-            "department"
+            "department",
         ]
         read_only_fields = ["id"]
 
@@ -44,7 +44,15 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["email", "password", "phone_number", "avatar", "city", "position", "department"]
+        fields = [
+            "email",
+            "password",
+            "phone_number",
+            "avatar",
+            "city",
+            "position",
+            "department",
+        ]
 
     def create(self, validated_data):
         user = User(

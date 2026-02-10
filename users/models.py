@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
+
 class CustomUserManager(BaseUserManager):
     use_in_migrations = True
 
@@ -33,15 +34,20 @@ class CustomUserManager(BaseUserManager):
 class User(AbstractUser):
     username = None
     email = models.EmailField(unique=True)
-    full_name = models.CharField(max_length=255, blank=True, null=True, verbose_name="ФИО")
+    full_name = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name="ФИО"
+    )
 
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     avatar = models.ImageField(upload_to="users/avatars/", blank=True, null=True)
     city = models.CharField(max_length=50, blank=True, null=True, verbose_name="Страна")
     tg_chat_id = models.CharField(max_length=50, blank=True, null=True)
-    department = models.CharField(max_length=100, blank=True, null=True, verbose_name="Отдел")
-    position = models.CharField(max_length=150, blank=True, null=True, verbose_name="Должность")
-
+    department = models.CharField(
+        max_length=100, blank=True, null=True, verbose_name="Отдел"
+    )
+    position = models.CharField(
+        max_length=150, blank=True, null=True, verbose_name="Должность"
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

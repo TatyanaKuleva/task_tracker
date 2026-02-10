@@ -24,6 +24,8 @@ django-cors-headers = "^4.9.0"
 black = "^26.1.0"
 flake8 = "^7.3.0"
 isort = "^7.0.0"
+django-extensions = "^4.1"
+drf-yasg = "^1.21.14"
 
 
 [build-system]
