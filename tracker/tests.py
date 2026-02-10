@@ -100,3 +100,81 @@ class EmployeeAPITestCase(APITestCase):
         response = self.client.get(self.list_url)
         self.assertEqual(response.status_code, 200)
         self.assertGreaterEqual(len(response.data), 1)
+
+
+class AdditionalTaskEmployeeAPITests(APITestCase):
+    def setUp(self):
+        self.user1 = User.objects.create_user(email="emp1@mail.com", password="pass1")
+        self.user2 = User.objects.create_user(email="emp2@mail.com", password="pass2")
+        self.employee1 = Employee.objects.create(full_name="Евгений Егоров", user=self.user1)
+        self.employee2 = Employee.objects.create(full_name="Галина Громова", user=self.user2)
+
+        self.task1 = Task.objects.create(
+            title="Root task",
+            description="task desc",
+            status="new",
+            priority=1,
+            assignee=self.employee1
+        )
+        self.task2 = Task.objects.create(
+            title="Blocked in-progress",
+            description="blocked",
+            status="in_progress",
+            priority=1,
+            assignee=self.employee1,
+            parent=self.task1,
+        )
+        self.task2.depends_on.set([self.task1])
+
+        self.task3 = Task.objects.create(
+            title="Another new task",
+            description="bla",
+            status="new",
+            priority=2,
+            assignee=self.employee2
+        )
+
+        self.critical_blocker = Task.objects.create(
+            title="Critical Blocker",
+            description="Critical new task",
+            status="new",
+            priority=1
+        )
+        self.task2.blocked_tasks.add(self.critical_blocker)
+
+        self.client = APIClient()
+        self.client.login(email="emp1@mail.com", password="pass1")
+
+    def test_employee_workload_endpoint(self):
+        url = reverse('tracker:employee-get-workload')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("active_tasks_count", response.data[0])
+        self.assertGreaterEqual(len(response.data), 2)
+
+    def test_task_critical_blockers_endpoint(self):
+        url = reverse('tracker:task-get-critical-blockers')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(any("Root task" in t["title"] for t in response.data))
+        self.assertIn("suggested_assignees", response.data[0])
+        print(response.data)
+
+    def test_task_filter_status(self):
+        url = reverse('tracker:task-list')
+        response = self.client.get(url, {"status": "in_progress"})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(all(t['status'] == 'in_progress' for t in response.data))
+
+    def test_task_filter_priority(self):
+        url = reverse('tracker:task-list')
+        response = self.client.get(url, {"priority": 1})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(all(t['priority'] == 1 for t in response.data))
+
+    def test_task_filter_assignee(self):
+        url = reverse('tracker:task-list')
+        response = self.client.get(url, {"assignee": self.employee1.id})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(all(t['assignee'] == self.employee1.id for t in response.data))
+
