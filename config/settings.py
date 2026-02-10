@@ -1,6 +1,7 @@
 import os
-from pathlib import Path
 from datetime import timedelta
+from pathlib import Path
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,8 +15,6 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 
-
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -27,6 +26,8 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "tracker",
     "users",
+    "django_extensions",
+    "drf_yasg",
 ]
 
 MIDDLEWARE = [
@@ -60,7 +61,6 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
@@ -72,8 +72,6 @@ DATABASES = {
         "OPTIONS": {"client_encoding": "UTF8"},
     }
 }
-
-
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -92,8 +90,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-
-
 LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "UTC"
@@ -110,30 +106,6 @@ STATIC_URL = "static/"
 
 AUTH_USER_MODEL = "users.User"
 
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-}
-
-CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
-CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
-
-
-CELERY_TIMEZONE = TIME_ZONE
-
-CELERY_TASK_TRACK_STARTED = True
-
-CELERY_TASK_TIME_LIMIT = 30 * 60
-
-CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
-
-CELERY_BEAT_SCHEDULE = {
-    "check_last_login": {
-        "task": "tracker.tasks.send_habit_reminders",
-        "schedule": timedelta(minutes=1),
-    }
-}
-CELERY_ENABLE_UTC = False
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = os.getenv("EMAIL_HOST")

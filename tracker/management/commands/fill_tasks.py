@@ -1,23 +1,34 @@
 import random
+
 from django.core.management.base import BaseCommand
-from users.models import User
 from django.utils import timezone
-from tracker.models import Task, Employee
+
+from tracker.models import Employee, Task
+from users.models import User
 
 
 class Command(BaseCommand):
-    help = 'Заполняет базу данных 10 тестовыми задачами'
+    help = "Заполняет базу данных 10 тестовыми задачами"
 
     def handle(self, *args, **kwargs):
-        user, _ = User.objects.get_or_create(email='admin@example.com')
+        user, _ = User.objects.get_or_create(email="admin@example.com")
 
         Task.objects.all().delete()
         Employee.objects.all().delete()
-        self.stdout.write(self.style.WARNING('Старые задачи удалены.'))
+        self.stdout.write(self.style.WARNING("Старые задачи удалены."))
 
-        positions = ['Frontend Developer', 'Backend Developer', 'QA Engineer', 'Project Manager']
-        names = ['Иванов Иван', 'Петров Петр', 'Сидоров Алексей', 'Анна Кузнецова']
-        emails = ['ivanov@mail.ru', 'petrov@mail.ru', 'sidorov@mail.ru', 'kuznecova@mail.ru']
+        positions = [
+            "Frontend Developer",
+            "Backend Developer",
+            "QA Engineer",
+            "Project Manager",
+        ]
+        emails = [
+            "ivanov@mail.ru",
+            "petrov@mail.ru",
+            "sidorov@mail.ru",
+            "kuznecova@mail.ru",
+        ]
 
         employees = []
         for email in emails:
@@ -28,14 +39,14 @@ class Command(BaseCommand):
                 user=user,
                 # full_name=names,
                 position=random.choice(positions),
-                department="IT Департамент"
+                department="IT Департамент",
             )
             employees.append(emp)
 
         self.stdout.write(self.style.SUCCESS(f"Создано {len(employees)} сотрудников."))
 
         tasks_pool = []
-        statuses = ['new', 'in_progress', 'done', 'blocked']
+        statuses = ["new", "in_progress", "done", "blocked"]
 
         for i in range(1, 6):
             task = Task.objects.create(
@@ -44,10 +55,9 @@ class Command(BaseCommand):
                 status=random.choice(statuses),
                 priority=random.randint(1, 3),
                 assignee=random.choice(employees),
-                due_date=timezone.now() + timezone.timedelta(days=i * 2)
+                due_date=timezone.now() + timezone.timedelta(days=i * 2),
             )
             tasks_pool.append(task)
-
 
         self.stdout.write(self.style.SUCCESS("Задачи созданы и распределены!"))
 
@@ -59,20 +69,25 @@ class Command(BaseCommand):
                 parent=parent,
                 status=random.choice(statuses),
                 priority=random.randint(1, 3),
-                assignee=random.choice(employees)
+                assignee=random.choice(employees),
             )
             tasks_pool.append(subtask)
-
 
         for i in range(5, 10):
             target_task = tasks_pool[i]
             dependency = tasks_pool[i - 5]
             target_task.depends_on.add(dependency)
 
-        self.stdout.write(self.style.SUCCESS(f'Успешно создано {Task.objects.count()} задач!'))
+        self.stdout.write(
+            self.style.SUCCESS(f"Успешно создано {Task.objects.count()} задач!")
+        )
         self.stdout.write("---")
         self.stdout.write("Схема зависимостей:")
         for t in Task.objects.all():
             parent_info = f" -> Родитель: {t.parent.id}" if t.parent else ""
-            deps_info = f" -> Зависит от: {[d.id for d in t.depends_on.all()]}" if t.depends_on.exists() else ""
+            deps_info = (
+                f" -> Зависит от: {[d.id for d in t.depends_on.all()]}"
+                if t.depends_on.exists()
+                else ""
+            )
             self.stdout.write(f"ID {t.id}: {t.title}{parent_info}{deps_info}")
